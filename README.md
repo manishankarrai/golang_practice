@@ -93,3 +93,5 @@ if strings.Contains(contentType, "multipart/form-data") {
     // Handle file upload safely
     // Do NOT read request body
 }
+## set env configuration based on system 
+// like for local linux ubuntu just run "export APP_ENV=dev"
