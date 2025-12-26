@@ -13,4 +13,5 @@ func SaveActivity(activityLog models.ActivityLog) {
 	// example SQL
 	// INSERT INTO activity_logs (payload) VALUES (?)
 	//_ = data
+	// put db logic here
 }
