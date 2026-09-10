@@ -10,6 +10,7 @@ import (
 func RegisterShop(rg *gin.RouterGroup) {
 	shops := rg.Group("/shops")
 	{
+		shops.POST("", handlers.CreateShop)
 		shops.GET("", handlers.GetShops)
 		shops.GET("/:id", handlers.GetShop)
 	}

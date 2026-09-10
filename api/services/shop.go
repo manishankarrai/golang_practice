@@ -24,6 +24,18 @@ func shopColl() *mongo.Collection {
 	return db.Database(shopDB).Collection(shopCollection)
 }
 
+// CreateShop inserts a new shop document.
+func CreateShop(ctx context.Context, shop models.Shop) (models.Shop, error) {
+	ctx, cancel := context.WithTimeout(ctx, 10*time.Second)
+	defer cancel()
+
+	shop.ID = bson.NewObjectID()
+	if _, err := shopColl().InsertOne(ctx, shop); err != nil {
+		return models.Shop{}, err
+	}
+	return shop, nil
+}
+
 // GetShops returns all shop documents.
 func GetShops(ctx context.Context) ([]models.Shop, error) {
 	ctx, cancel := context.WithTimeout(ctx, 10*time.Second)
