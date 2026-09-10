@@ -2,6 +2,7 @@ package main
 
 import (
 	"os"
+	"practice/api/db"
 	"practice/api/routes"
 	"practice/config"
 
@@ -10,6 +11,8 @@ import (
 
 func main() {
 	config.LoadEnv()
+
+	db.Connect() // initialize shared MongoDB client
 
 	router := gin.Default()
 

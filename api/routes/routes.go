@@ -8,5 +8,7 @@ import (
 
 func RegisterRoutes(r *gin.Engine) {
 	api := r.Group("/api", middleware.SaveActivitiesInDB())
-	RegisterUser(api) // User Routes
+	RegisterUser(api)   // User Routes
+	RegisterMobile(api) // Mobile Routes
+	RegisterShop(api)   // Shop Routes
 }
