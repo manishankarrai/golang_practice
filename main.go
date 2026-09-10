@@ -26,5 +26,5 @@ func main() {
 	if port == "" {
 		port = "8081"
 	}
-	router.Run()
+	router.Run(":" + port)
 }

@@ -71,3 +71,49 @@ func GetShop(c *gin.Context) {
 		"data":    shop,
 	})
 }
+
+// UpdateShop handles PUT /api/shops/:id.
+func UpdateShop(c *gin.Context) {
+	var req models.ShopRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": err.Error()})
+		return
+	}
+
+	shop := models.Shop{
+		Name:    req.Name,
+		Address: req.Address,
+		City:    req.City,
+		Phone:   req.Phone,
+	}
+
+	updated, err := services.UpdateShop(c.Request.Context(), c.Param("id"), shop)
+	if err != nil {
+		if errors.Is(err, services.ErrShopNotFound) {
+			c.JSON(http.StatusNotFound, gin.H{"success": false, "message": "shop not found"})
+			return
+		}
+		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"message": "shop updated successfully",
+		"data":    updated,
+	})
+}
+
+// DeleteShop handles DELETE /api/shops/:id.
+func DeleteShop(c *gin.Context) {
+	if err := services.DeleteShop(c.Request.Context(), c.Param("id")); err != nil {
+		if errors.Is(err, services.ErrShopNotFound) {
+			c.JSON(http.StatusNotFound, gin.H{"success": false, "message": "shop not found"})
+			return
+		}
+		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"success": true, "message": "shop deleted successfully"})
+}

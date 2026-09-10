@@ -10,6 +10,7 @@ import (
 
 	"go.mongodb.org/mongo-driver/v2/bson"
 	"go.mongodb.org/mongo-driver/v2/mongo"
+	"go.mongodb.org/mongo-driver/v2/mongo/options"
 )
 
 const (
@@ -73,4 +74,53 @@ func GetShopByID(ctx context.Context, id string) (models.Shop, error) {
 		return models.Shop{}, err
 	}
 	return shop, nil
+}
+
+// UpdateShop replaces the mutable fields of an existing shop.
+func UpdateShop(ctx context.Context, id string, shop models.Shop) (models.Shop, error) {
+	ctx, cancel := context.WithTimeout(ctx, 10*time.Second)
+	defer cancel()
+
+	objID, err := bson.ObjectIDFromHex(id)
+	if err != nil {
+		return models.Shop{}, ErrShopNotFound
+	}
+
+	update := bson.M{"$set": bson.M{
+		"name":    shop.Name,
+		"address": shop.Address,
+		"city":    shop.City,
+		"phone":   shop.Phone,
+	}}
+
+	opts := options.FindOneAndUpdate().SetReturnDocument(options.After)
+	var updated models.Shop
+	err = shopColl().FindOneAndUpdate(ctx, bson.M{"_id": objID}, update, opts).Decode(&updated)
+	if err != nil {
+		if errors.Is(err, mongo.ErrNoDocuments) {
+			return models.Shop{}, ErrShopNotFound
+		}
+		return models.Shop{}, err
+	}
+	return updated, nil
+}
+
+// DeleteShop removes a shop by its hex id.
+func DeleteShop(ctx context.Context, id string) error {
+	ctx, cancel := context.WithTimeout(ctx, 10*time.Second)
+	defer cancel()
+
+	objID, err := bson.ObjectIDFromHex(id)
+	if err != nil {
+		return ErrShopNotFound
+	}
+
+	res, err := shopColl().DeleteOne(ctx, bson.M{"_id": objID})
+	if err != nil {
+		return err
+	}
+	if res.DeletedCount == 0 {
+		return ErrShopNotFound
+	}
+	return nil
 }

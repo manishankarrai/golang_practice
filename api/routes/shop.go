@@ -13,5 +13,7 @@ func RegisterShop(rg *gin.RouterGroup) {
 		shops.POST("", handlers.CreateShop)
 		shops.GET("", handlers.GetShops)
 		shops.GET("/:id", handlers.GetShop)
+		shops.PUT("/:id", handlers.UpdateShop)
+		shops.DELETE("/:id", handlers.DeleteShop)
 	}
 }
