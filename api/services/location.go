@@ -91,17 +91,29 @@ func UpdateLocation(ctx context.Context, id string, location models.Location) (m
 		return models.Location{}, ErrLocationNotFound
 	}
 
-	update := bson.M{"$set": bson.M{
-		"name":      location.Name,
-		"address":   location.Address,
-		"city":      location.City,
-		"state":     location.State,
-		"country":   location.Country,
-		"zip_code":  location.ZipCode,
+	locationDetails := bson.M{
+		"name":     location.Name,
+		"address":  location.Address,
+		"city":     location.City,
+		"state":    location.State,
+		"country":  location.Country,
+		"zip_code": location.ZipCode,
+	}
+
+	coordinates := bson.M{
 		"latitude":  location.Latitude,
 		"longitude": location.Longitude,
-	}}
+	}
 
+	updateFields := bson.M{}
+	for key, value := range locationDetails {
+		updateFields[key] = value
+	}
+	for key, value := range coordinates {
+		updateFields[key] = value
+	}
+
+	update := bson.M{"$set": updateFields}
 	opts := options.FindOneAndUpdate().SetReturnDocument(options.After)
 	var updated models.Location
 	err = locationColl().FindOneAndUpdate(ctx, bson.M{"_id": objID}, update, opts).Decode(&updated)
@@ -117,7 +129,7 @@ func UpdateLocation(ctx context.Context, id string, location models.Location) (m
 // DeleteLocation removes a location by its hex id.
 func DeleteLocation(ctx context.Context, id string) error {
 	ctx, cancel := context.WithTimeout(ctx, 10*time.Second)
-	defer cancel()
+	defers cancel()
 
 	objID, err := bson.ObjectIDFromHex(id)
 	if err != nil {

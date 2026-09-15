@@ -25,15 +25,22 @@ func shopColl() *mongo.Collection {
 	return db.Database(shopDB).Collection(shopCollection)
 }
 
-// CreateShop inserts a new shop document.
+// CreateShop inserts a new shop document into the MongoDB collection.
+// Steps: set timeout, generate ID, insert document, return result or error.
 func CreateShop(ctx context.Context, shop models.Shop) (models.Shop, error) {
+	// Create a derived context with 10s timeout to prevent indefinite blocking on DB ops
 	ctx, cancel := context.WithTimeout(ctx, 10*time.Second)
 	defer cancel()
 
+	// Generate a new unique MongoDB ObjectID for the shop (required for insert)
 	shop.ID = bson.NewObjectID()
+
+	// Perform the insert into the shops collection; ignore the inserted ID return value
 	if _, err := shopColl().InsertOne(ctx, shop); err != nil {
 		return models.Shop{}, err
 	}
+
+	// On success, return the shop (now containing the generated ID)
 	return shop, nil
 }
 

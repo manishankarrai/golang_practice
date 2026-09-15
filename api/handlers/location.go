@@ -12,33 +12,57 @@ import (
 
 // CreateLocation handles POST /api/locations.
 func CreateLocation(c *gin.Context) {
+	// Create a variable to hold the location data sent in the request body.
 	var req models.LocationRequest
+
+	// Read the JSON request body and convert it into the LocationRequest struct.
+	// ShouldBindJSON also validates the request according to the model's tags.
 	if err := c.ShouldBindJSON(&req); err != nil {
+		// Return HTTP 400 when the request body is invalid or cannot be parsed.
 		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": err.Error()})
+		// Stop processing because there is no valid request to create.
 		return
 	}
 
+	// Copy the values from the request struct into a Location model.
+	// This is the object that will be passed to the service layer for creation.
 	location := models.Location{
-		Name:      req.Name,
-		Address:   req.Address,
-		City:      req.City,
-		State:     req.State,
-		Country:   req.Country,
-		ZipCode:   req.ZipCode,
-		Latitude:  req.Latitude,
+		// Set the location's name from the request.
+		Name: req.Name,
+		// Set the street or full address from the request.
+		Address: req.Address,
+		// Set the city from the request.
+		City: req.City,
+		// Set the state or province from the request.
+		State: req.State,
+		// Set the country from the request.
+		Country: req.Country,
+		// Set the postal or ZIP code from the request.
+		ZipCode: req.ZipCode,
+		// Set the geographic latitude from the request.
+		Latitude: req.Latitude,
+		// Set the geographic longitude from the request.
 		Longitude: req.Longitude,
 	}
 
+	// Pass the request context and location model to the service layer.
+	// The service layer performs the actual creation operation.
 	created, err := services.CreateLocation(c.Request.Context(), location)
 	if err != nil {
+		// Return HTTP 500 when the service cannot create the location.
 		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": err.Error()})
+		// Stop processing after sending the error response.
 		return
 	}
 
+	// Return HTTP 201 to indicate that the location was created successfully.
 	c.JSON(http.StatusCreated, gin.H{
+		// Tell the client that the operation succeeded.
 		"success": true,
+		// Provide a human-readable success message.
 		"message": "location created successfully",
-		"data":    created,
+		// Return the newly created location in the response data.
+		"data": created,
 	})
 }
 

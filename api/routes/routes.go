@@ -15,4 +15,6 @@ func RegisterRoutes(r *gin.Engine) {
 	RegisterState(api)    // State Routes
 	RegisterCountry(api)  // Country Routes
 	RegisterStage(api)    // Stage Routes
+	RegisterGallery(api)  // Gallery Routes
+	RegisterFruit(api)    // Fruit Routes
 }
