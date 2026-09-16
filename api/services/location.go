@@ -129,7 +129,7 @@ func UpdateLocation(ctx context.Context, id string, location models.Location) (m
 // DeleteLocation removes a location by its hex id.
 func DeleteLocation(ctx context.Context, id string) error {
 	ctx, cancel := context.WithTimeout(ctx, 10*time.Second)
-	defers cancel()
+	defer cancel()
 
 	objID, err := bson.ObjectIDFromHex(id)
 	if err != nil {
