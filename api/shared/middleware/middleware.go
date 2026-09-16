@@ -29,8 +29,7 @@ func (w bodyLogWriter) WriteString(s string) (int, error) {
 
 func SaveActivitiesInDB() gin.HandlerFunc {
 	return func(c *gin.Context) {
-
-		start := time.Now()
+		incomingRequestTime := time.Now()
 		contentType := c.GetHeader("Content-Type")
 
 		var requestBody string
@@ -50,18 +49,24 @@ func SaveActivitiesInDB() gin.HandlerFunc {
 		c.Writer = blw
 
 		c.Next()
+		outgoingRequestTime := time.Now()
 
 		logData := models.ActivityLog{
-			Method:       c.Request.Method,
-			Path:         c.FullPath(),
-			Query:        c.Request.URL.RawQuery,
-			IP:           c.ClientIP(),
-			UserAgent:    c.Request.UserAgent(),
-			Headers:      c.Request.Header,
-			RequestBody:  requestBody,
-			StatusCode:   c.Writer.Status(),
-			ResponseBody: blw.body.String(),
-			LatencyMs:    time.Since(start).Milliseconds(),
+			Method:              c.Request.Method,
+			Path:                c.FullPath(),
+			Query:               c.Request.URL.RawQuery,
+			IP:                  c.ClientIP(),
+			UserAgent:           c.Request.UserAgent(),
+			Authorization:       c.GetHeader("Authorization"),
+			Origin:              c.GetHeader("Origin"),
+			Referer:             c.GetHeader("Referer"),
+			Headers:             c.Request.Header,
+			RequestBody:         requestBody,
+			StatusCode:          c.Writer.Status(),
+			ResponseBody:        blw.body.String(),
+			LatencyMs:           outgoingRequestTime.Sub(incomingRequestTime).Milliseconds(),
+			IncomingRequestTime: incomingRequestTime,
+			OutgoingRequestTime: outgoingRequestTime,
 		}
 		go commonfun.SaveActivity(logData) // save into db
 	}
