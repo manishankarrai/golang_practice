@@ -55,7 +55,6 @@ func SaveActivitiesInDB() gin.HandlerFunc {
 			Method:              c.Request.Method,
 			Path:                c.FullPath(),
 			Query:               c.Request.URL.RawQuery,
-			IP:                  c.ClientIP(),
 			UserAgent:           c.Request.UserAgent(),
 			Authorization:       c.GetHeader("Authorization"),
 			Origin:              c.GetHeader("Origin"),
