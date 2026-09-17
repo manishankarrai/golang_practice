@@ -15,7 +15,7 @@ type ActivityLog struct {
 	RequestBody         string              `json:"request_body"`
 	StatusCode          int                 `json:"status_code"`
 	ResponseBody        string              `json:"response_body"`
-	LatencyMs           int64               `json:"latency_ms"`
+	LatencySeconds      float64             `json:"latency_seconds" bson:"latency_seconds"`
 	IncomingRequestTime time.Time           `json:"incoming_request_time" bson:"incoming_request_time"`
 	OutgoingRequestTime time.Time           `json:"outgoing_request_time" bson:"outgoing_request_time"`
 }

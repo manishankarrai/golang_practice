@@ -64,7 +64,7 @@ func SaveActivitiesInDB() gin.HandlerFunc {
 			RequestBody:         requestBody,
 			StatusCode:          c.Writer.Status(),
 			ResponseBody:        blw.body.String(),
-			LatencyMs:           outgoingRequestTime.Sub(incomingRequestTime).Milliseconds(),
+			LatencySeconds:      outgoingRequestTime.Sub(incomingRequestTime).Seconds(),
 			IncomingRequestTime: incomingRequestTime,
 			OutgoingRequestTime: outgoingRequestTime,
 		}
