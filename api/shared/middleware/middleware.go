@@ -55,6 +55,7 @@ func SaveActivitiesInDB() gin.HandlerFunc {
 			Method:              c.Request.Method,
 			Path:                c.FullPath(),
 			Query:               c.Request.URL.RawQuery,
+			IP:                  c.ClientIP(),
 			UserAgent:           c.Request.UserAgent(),
 			Authorization:       c.GetHeader("Authorization"),
 			Origin:              c.GetHeader("Origin"),
@@ -67,6 +68,6 @@ func SaveActivitiesInDB() gin.HandlerFunc {
 			IncomingRequestTime: incomingRequestTime,
 			OutgoingRequestTime: outgoingRequestTime,
 		}
-		go commonfun.SaveActivity(logData) // save into db
+		go commonfun.SaveActivity(logData) // save into db asynchronously
 	}
 }

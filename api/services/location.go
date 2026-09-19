@@ -16,6 +16,7 @@ import (
 const (
 	locationDB         = "golang_practice"
 	locationCollection = "locations"
+	locationTimeout    = 10 * time.Second
 )
 
 // ErrLocationNotFound is returned when a location document does not exist.
@@ -25,9 +26,34 @@ func locationColl() *mongo.Collection {
 	return db.Database(locationDB).Collection(locationCollection)
 }
 
+func locationContext(ctx context.Context) (context.Context, context.CancelFunc) {
+	return context.WithTimeout(ctx, locationTimeout)
+}
+
+func locationObjectID(id string) (bson.ObjectID, error) {
+	objID, err := bson.ObjectIDFromHex(id)
+	if err != nil {
+		return bson.NilObjectID, ErrLocationNotFound
+	}
+	return objID, nil
+}
+
+func locationUpdateFields(location models.Location) bson.M {
+	return bson.M{
+		"name":      location.Name,
+		"address":   location.Address,
+		"city":      location.City,
+		"state":     location.State,
+		"country":   location.Country,
+		"zip_code":  location.ZipCode,
+		"latitude":  location.Latitude,
+		"longitude": location.Longitude,
+	}
+}
+
 // CreateLocation inserts a new location document.
 func CreateLocation(ctx context.Context, location models.Location) (models.Location, error) {
-	ctx, cancel := context.WithTimeout(ctx, 10*time.Second)
+	ctx, cancel := locationContext(ctx)
 	defer cancel()
 
 	location.ID = bson.NewObjectID()
@@ -39,7 +65,7 @@ func CreateLocation(ctx context.Context, location models.Location) (models.Locat
 
 // GetLocations returns all location documents, optionally filtered by city.
 func GetLocations(ctx context.Context, city string) ([]models.Location, error) {
-	ctx, cancel := context.WithTimeout(ctx, 10*time.Second)
+	ctx, cancel := locationContext(ctx)
 	defer cancel()
 
 	filter := bson.M{}
@@ -62,10 +88,10 @@ func GetLocations(ctx context.Context, city string) ([]models.Location, error) {
 
 // GetLocationByID returns a single location by its hex id.
 func GetLocationByID(ctx context.Context, id string) (models.Location, error) {
-	ctx, cancel := context.WithTimeout(ctx, 10*time.Second)
+	ctx, cancel := locationContext(ctx)
 	defer cancel()
 
-	objID, err := bson.ObjectIDFromHex(id)
+	objID, err := locationObjectID(id)
 	if err != nil {
 		return models.Location{}, ErrLocationNotFound
 	}
@@ -83,37 +109,15 @@ func GetLocationByID(ctx context.Context, id string) (models.Location, error) {
 
 // UpdateLocation replaces the mutable fields of an existing location.
 func UpdateLocation(ctx context.Context, id string, location models.Location) (models.Location, error) {
-	ctx, cancel := context.WithTimeout(ctx, 10*time.Second)
+	ctx, cancel := locationContext(ctx)
 	defer cancel()
 
-	objID, err := bson.ObjectIDFromHex(id)
+	objID, err := locationObjectID(id)
 	if err != nil {
 		return models.Location{}, ErrLocationNotFound
 	}
 
-	locationDetails := bson.M{
-		"name":     location.Name,
-		"address":  location.Address,
-		"city":     location.City,
-		"state":    location.State,
-		"country":  location.Country,
-		"zip_code": location.ZipCode,
-	}
-
-	coordinates := bson.M{
-		"latitude":  location.Latitude,
-		"longitude": location.Longitude,
-	}
-
-	updateFields := bson.M{}
-	for key, value := range locationDetails {
-		updateFields[key] = value
-	}
-	for key, value := range coordinates {
-		updateFields[key] = value
-	}
-
-	update := bson.M{"$set": updateFields}
+	update := bson.M{"$set": locationUpdateFields(location)}
 	opts := options.FindOneAndUpdate().SetReturnDocument(options.After)
 	var updated models.Location
 	err = locationColl().FindOneAndUpdate(ctx, bson.M{"_id": objID}, update, opts).Decode(&updated)
@@ -128,10 +132,10 @@ func UpdateLocation(ctx context.Context, id string, location models.Location) (m
 
 // DeleteLocation removes a location by its hex id.
 func DeleteLocation(ctx context.Context, id string) error {
-	ctx, cancel := context.WithTimeout(ctx, 10*time.Second)
+	ctx, cancel := locationContext(ctx)
 	defer cancel()
 
-	objID, err := bson.ObjectIDFromHex(id)
+	objID, err := locationObjectID(id)
 	if err != nil {
 		return ErrLocationNotFound
 	}

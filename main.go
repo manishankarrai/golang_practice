@@ -1,8 +1,8 @@
 package main
 
 // Package main is the entry point for the golang_practice Gin-based web application.
-// It loads environment configuration, initializes the shared MongoDB connection,
-// sets up the router with middleware and routes, and starts the HTTP server.
+// It loads environment configuration, initializes the shared MongoDB and Redis
+// connections, sets up the router with middleware and routes, and starts the HTTP server.
 import (
 	"os"
 	"practice/api/db"
@@ -14,14 +14,15 @@ import (
 
 // main bootstraps the application:
 // - Loads .env based on APP_ENV
-// - Connects to MongoDB via the db package
+// - Connects to MongoDB and Redis
 // - Creates a default Gin engine
-// - Registers all API route groups (user, mobile, shop, location, etc.)
+// - Registers all API route groups
 // - Starts listening on the configured port (default 8081)
 func main() {
 	config.LoadEnv()
 
-	db.Connect() // initialize shared MongoDB client
+	db.Connect()
+	db.ConnectRedis()
 
 	router := gin.Default()
 	router.Static("/uploads", "./uploads")
@@ -30,8 +31,7 @@ func main() {
 		c.JSON(200, "pong")
 	})
 
-	routes.RegisterRoutes(router) // initialized routes
-	// read port from env or fallback to default
+	routes.RegisterRoutes(router)
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "8081"
