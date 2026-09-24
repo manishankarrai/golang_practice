@@ -3,6 +3,7 @@ package middleware
 import (
 	"bytes"
 	"io"
+	"log"
 	"strings"
 	"time"
 
@@ -40,6 +41,8 @@ func SaveActivitiesInDB() gin.HandlerFunc {
 			requestBody = string(bodyBytes)
 			c.Request.Body = io.NopCloser(bytes.NewBuffer(bodyBytes)) // restore body again
 		}
+
+		log.Printf("SaveActivitiesInDB: method=%s path=%s request body=%s", c.Request.Method, c.Request.URL.Path, requestBody)
 
 		// ---------- RESPONSE WRITER ----------
 		blw := &bodyLogWriter{

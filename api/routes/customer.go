@@ -11,6 +11,7 @@ func RegisterCustomerRoutes(rg *gin.RouterGroup) {
 	{
 		customers.POST("", handlers.CreateCustomer)
 		customers.GET("", handlers.GetCustomers)
+		customers.GET("/:id/notifications", handlers.StreamRideNotifications)
 		customers.GET("/:id", handlers.GetCustomer)
 		customers.PUT("/:id", handlers.UpdateCustomer)
 		customers.DELETE("/:id", handlers.DeleteCustomer)

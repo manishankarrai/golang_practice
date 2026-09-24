@@ -8,15 +8,20 @@ import (
 
 func RegisterRoutes(r *gin.Engine) {
 	api := r.Group("/api", middleware.SaveActivitiesInDB())
-	RegisterUser(api)          // User Routes
-	RegisterMobile(api)        // Mobile Routes
+	RegisterUser(api)           // User Routes
+	RegisterMobile(api)         // Mobile Routes
 	RegisterShop(api)           // Shop Routes
 	RegisterLocation(api)       // Location Routes
 	RegisterMotorVehicles(api)  // Motor vehicle and registration routes
+	RegisterMotorParts(api)     // Motor part routes
 	RegisterCustomerRoutes(api) // Customer and ride routes
 	RegisterState(api)          // State Routes
 	RegisterCountry(api)        // Country Routes
 	RegisterStage(api)          // Stage Routes
 	RegisterGallery(api)        // Gallery Routes
 	RegisterFruit(api)          // Fruit Routes
+	RegisterFlower(api)         // Flower Routes
+	RegisterFlowerShop(api)     // Flower Shop Routes
+	RegisterFlowerBuyer(api)    // Flower buyer CRUD routes
+	RegisterShopOrder(api)      // Shop order routes
 }

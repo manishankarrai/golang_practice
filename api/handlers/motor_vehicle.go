@@ -90,6 +90,7 @@ func AttachRiderToMotorVehicle(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": err.Error()})
 		return
 	}
+	log.Printf("AttachRiderToMotorVehicle: request body parsed for vehicle id=%s rider id=%s", id, req.RiderID)
 	if _, err := services.GetRiderByID(c.Request.Context(), req.RiderID); err != nil {
 		log.Printf("AttachRiderToMotorVehicle: rider lookup error for rider id=%s: %v", req.RiderID, err)
 		if errors.Is(err, services.ErrRiderNotFound) {
@@ -99,6 +100,7 @@ func AttachRiderToMotorVehicle(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": err.Error()})
 		return
 	}
+	log.Printf("AttachRiderToMotorVehicle: rider lookup succeeded for rider id=%s", req.RiderID)
 	vehicle, err := services.SetVehicleRider(c.Request.Context(), id, req.RiderID)
 	if err != nil {
 		log.Printf("AttachRiderToMotorVehicle: service error for vehicle id=%s: %v", id, err)

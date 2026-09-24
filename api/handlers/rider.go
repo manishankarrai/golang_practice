@@ -33,6 +33,15 @@ func GetRiders(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"success": true, "message": "riders fetched successfully", "data": riders})
 }
 
+// GetRider handles GET requests for a single rider identified by the :id
+// route parameter. It delegates to services.GetRiderByID, which converts the
+// id into a MongoDB ObjectID, looks it up in the riders collection, and returns
+// ErrRiderNotFound when the id is malformed or no document matches.
+//
+// Responses:
+//   - 200 OK with the rider when the lookup succeeds
+//   - 404 Not Found when the rider does not exist
+//   - 500 Internal Server Error for any other service failure
 func GetRider(c *gin.Context) {
 	rider, err := services.GetRiderByID(c.Request.Context(), c.Param("id"))
 	if err != nil {
